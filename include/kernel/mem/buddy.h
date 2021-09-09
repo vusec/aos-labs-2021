@@ -59,6 +59,8 @@ struct page_info *page_alloc(int alloc_flags);
 struct page_info *buddy_find(size_t req_order);
 void page_free(struct page_info *pp);
 void page_decref(struct page_info *pp);
+void buddy_migrate(void);
+int buddy_map_chunk(struct page_table *pml4, size_t index);
 
 static inline physaddr_t page2pa(struct page_info *pp)
 {

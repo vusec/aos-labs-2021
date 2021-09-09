@@ -1,0 +1,54 @@
+#!/usr/bin/env python
+
+from gradelib import *
+
+r = Runner(save('jos.out'),
+	   stop_breakpoint('readline'))
+
+@test(0, 'running OpenLSD')
+def test_jos():
+    r.run_qemu()
+
+@test(10, 'Page table permissions', parent=test_jos)
+def test_ptbl_flags():
+    r.match(r'\[LAB 2\] check_ptbl_flags\(\) succeeded!')
+
+@test(10, 'No eXecute bit', parent=test_jos)
+def test_nx():
+    r.match(r'\[LAB 2\] check_nx\(\) succeeded!')
+
+@test(10, 'W^X violations', parent=test_jos)
+def test_wx():
+    r.match(r'\[LAB 2\] check_wx\(\) succeeded!')
+
+@test(10, '4K paging', parent=test_jos)
+def test_4k_paging():
+    r.match(r'\[LAB 2\] check_4k_paging\(\) succeeded!')
+
+## Huge page bonus
+#@test(10, '2M paging', parent=test_jos)
+#def test_2m_paging():
+#    r.match(r'\[LAB 2\] check_2m_paging\(\) succeeded!')
+
+#@test(10, 'Transparent 2M paging', parent=test_jos)
+#def test_transparent_2m_paging():
+#    r.match(r'\[LAB 2\] check_transparent_2m_paging\(\) succeeded!')
+
+@test(10, 'Order violations', parent=test_jos)
+def test_order():
+    r.match(r'\[LAB 2\] check_free_list_order\(\) succeeded!')
+
+@test(10, 'Memory layout', parent=test_jos)
+def test_memory_layout():
+    r.match(r'\[LAB 2\] check_memory_layout\(\) succeeded!')
+
+@test(10, 'Buddy consistency', parent=test_jos)
+def test_memory_layout():
+    r.match(r'\[LAB 2\] check_buddy_consistency\(\) succeeded!')
+
+@test(10, 'Virtual address space', parent=test_jos)
+def test_memory_layout():
+    r.match(r'\[LAB 2\] check_vas\(\) succeeded!')
+
+run_tests()
+

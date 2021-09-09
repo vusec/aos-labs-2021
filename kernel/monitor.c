@@ -28,6 +28,7 @@ static struct command commands[] = {
 	{ "backtrace", "Display stack backtrace", mon_backtrace },
 	{ "buddyinfo", "Display debugging information for the buddy allocator", mon_buddyinfo },
 	{ "pageinfo", "Display page information for a given page index", mon_pageinfo },
+	{ "ptdump", "Display the page tables", mon_ptdump },
 };
 
 #define NCOMMANDS (sizeof(commands)/sizeof(commands[0]))
@@ -134,6 +135,11 @@ int mon_pageinfo(int argc, char **argv, struct int_frame *frame)
 	cprintf("  Order: %u\n", page->pp_order);
 
 	return 0;
+}
+
+int mon_ptdump(int argc, char **argv, struct int_frame *frame)
+{
+	return dump_page_tables(kernel_pml4, PAGE_HUGE);
 }
 
 /***** Kernel monitor command interpreter *****/

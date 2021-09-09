@@ -10,6 +10,47 @@
 
 extern struct list buddy_free_list[];
 
+/* The kernel's initial PML4. */
+struct page_table *kernel_pml4;
+
+/* This function sets up the initial PML4 for the kernel. */
+int pml4_setup(struct boot_info *boot_info)
+{
+	struct page_info *page;
+
+	/* Allocate the kernel PML4. */
+	page = page_alloc(ALLOC_ZERO);
+
+	if (!page) {
+		panic("unable to allocate the PML4!");
+	}
+
+	kernel_pml4 = page2kva(page);
+
+	/* Map in the regions used by the kernel from the ELF header passed to
+	 * us through the boot info struct.
+	 */
+
+	/* LAB 2: your code here. */
+
+	/* Use the physical memory that 'bootstack' refers to as the kernel
+	 * stack. The kernel stack grows down from virtual address KSTACK_TOP.
+	 * Map 'bootstack' to [KSTACK_TOP - KSTACK_SIZE, KSTACK_TOP).
+	 */
+
+	/* Map in the pages from the buddy allocator as RW-. */
+
+	/* LAB 2: your code here. */
+
+	/* Migrate the struct page_info structs to the newly mapped area using
+	 * buddy_migrate().
+	 */
+
+	/* LAB 2: your code here. */
+
+	return 0;
+}
+
 /*
  * Set up a four-level page table:
  * kernel_pml4 is its linear (virtual) address of the root
@@ -70,10 +111,28 @@ void mem_init(struct boot_info *boot_info)
 	 */
 	page_init(boot_info);
 
-	/* Perform the tests of lab 1. */
-	lab1_check_mem(boot_info);
-
 	/* We will set up page tables here in lab 2. */
+
+	/* Setup the initial PML4 for the kernel. */
+	pml4_setup(boot_info);
+
+	/* Enable the NX-bit. */
+	/* LAB 2: your code here. */
+
+	/* Check the kernel PML4. */
+	lab2_check_pml4();
+
+	/* Load the kernel PML4. */
+	/* LAB 2: your code here. */
+
+	/* Check the paging functions. */
+	lab2_check_paging();
+
+	/* Add the rest of the physical memory to the buddy allocator. */
+	page_init_ext(boot_info);
+
+	/* Check the buddy allocator. */
+	lab2_check_buddy(boot_info);
 }
 
 /*
@@ -116,5 +175,29 @@ void page_init(struct boot_info *boot_info)
 	 */
 	for (i = 0; i < boot_info->mmap_len; ++i, ++entry) {
 		/* LAB 1: your code here. */
+	}
+}
+
+/* Extend the buddy allocator by initializing the page structure and memory
+ * free list for the remaining available memory.
+ */
+void page_init_ext(struct boot_info *boot_info)
+{
+	struct page_info *page;
+	struct mmap_entry *entry;
+	uintptr_t pa, end;
+	size_t i;
+
+	entry = (struct mmap_entry *)KADDR(boot_info->mmap_addr);
+	end = PADDR(boot_alloc(0));
+
+	/* Go through the entries in the memory map:
+	 *  1) Ignore the entry if the region is not free memory.
+	 *  2) Iterate through the pages in the region.
+	 *  3) If the physical address is below BOOT_MAP_LIM, ignore.
+	 *  4) Hand the page to the buddy allocator by calling page_free().
+	 */
+	for (i = 0; i < boot_info->mmap_len; ++i, ++entry) {
+		/* LAB 2: your code here. */
 	}
 }
