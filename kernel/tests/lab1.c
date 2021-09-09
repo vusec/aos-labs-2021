@@ -158,7 +158,7 @@ void lab1_check_split_and_merge(void)
 	nfree_pages = count_free_pages(BUDDY_2M_PAGE);
 
 	/* Allocate a huge page. */
-	page = page_alloc(ALLOC_HUGE);
+	page = buddy_find(BUDDY_2M_PAGE);
 
 	if (!page) {
 		panic("can't allocate 2M page!");
@@ -208,7 +208,7 @@ void lab1_check_split_and_merge(void)
 	assert(count_free_pages(BUDDY_2M_PAGE) == 1);
 
 	/* Allocate the huge page again. */
-	page = page_alloc(ALLOC_HUGE);
+	page = buddy_find(BUDDY_2M_PAGE);
 
 	if (!page) {
 		panic("can't allocate 2M page!");
