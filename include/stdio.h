@@ -8,6 +8,7 @@
 
 /* lib/stdio.c */
 void cputchar(int c);
+void putchar(int c);
 int getchar(void);
 int iscons(int fd);
 
@@ -24,6 +25,7 @@ int vcprintf(const char *fmt, va_list);
 
 /* lib/fprintf.c */
 int printf(const char *fmt, ...);
+int vprintf(const char *fmt, va_list);
 int fprintf(int fd, const char *fmt, ...);
 int vfprintf(int fd, const char *fmt, va_list);
 

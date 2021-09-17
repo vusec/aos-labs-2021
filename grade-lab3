@@ -1,0 +1,253 @@
+#!/usr/bin/env python
+
+from gradelib import *
+
+r = Runner(save('jos.out'),
+           stop_breakpoint('readline'))
+
+@test(0, 'running OpenLSD')
+def test_jos():
+    r.run_qemu()
+
+@test(10, 'Slab initialization', parent=test_jos)
+def test_kmem_init():
+    r.match(r'\[LAB 3\] check_kmem_init\(\) succeeded!')
+
+@test(10, 'Slab single alloc', parent=test_jos)
+def test_kmem_single_alloc():
+    r.match(r'\[LAB 3\] check_kmem_single_alloc\(\) succeeded!')
+
+@test(10, 'Slab full alloc', parent=test_jos)
+def test_kmem_full_alloc():
+    r.match(r'\[LAB 3\] check_kmem_full_alloc\(\) succeeded!')
+
+@test(10, 'Slab limit', parent=test_jos)
+def test_kmem_single_alloc():
+    r.match(r'\[LAB 3\] check_kmem_limit\(\) succeeded!')
+
+end_part('slab')
+
+@test(10)
+def test_divzero():
+    r.user_test('divzero')
+    r.match('\[LAB 3\] check_us\(\) succeeded!',
+            '\[LAB 3\] check_wx\(\) succeeded!',
+            '\[LAB 3\] check_null\(\) succeeded!',
+            'Welcome to the OpenLSD kernel monitor!',
+            'Incoming INT frame at 0xfffffe7fffffff..',
+            'INT frame at 0xf.......',
+            ' INT 0: Divide-by-Zero Error Exception \(#DE\)',
+            ' RIP 0x00000000008..... RFL 0x.{16}',
+            ' CS  0x0023             DS  0x001b             SS  0x001b',
+            '.PID     1. Freed task with PID 1',
+            no=['1/0 is ........!'])
+
+@test(10)
+def test_softint():
+    r.user_test('softint')
+    r.match('\[LAB 3\] check_us\(\) succeeded!',
+            '\[LAB 3\] check_wx\(\) succeeded!',
+            '\[LAB 3\] check_null\(\) succeeded!',
+            'Welcome to the OpenLSD kernel monitor!',
+            'Incoming INT frame at 0xfffffe7fffffff..',
+            'INT frame at 0xf.......',
+            ' INT 13: General Protection \(#GP\)',
+            ' RIP 0x00000000008..... RFL 0x.{16}',
+            ' CS  0x0023             DS  0x001b             SS  0x001b',
+            '.PID     1. Freed task with PID 1')
+
+@test(10)
+def test_badsegment():
+    r.user_test('badsegment')
+    r.match('\[LAB 3\] check_us\(\) succeeded!',
+            '\[LAB 3\] check_wx\(\) succeeded!',
+            '\[LAB 3\] check_null\(\) succeeded!',
+            'Welcome to the OpenLSD kernel monitor!',
+            'Incoming INT frame at 0xfffffe7fffffff..',
+            'INT frame at 0xf.......',
+            ' INT 13: General Protection \(#GP\)',
+            ' RIP 0x00000000008..... RFL 0x.{16}',
+            ' CS  0x0023             DS  0x001b             SS  0x001b',
+            '.PID     1. Freed task with PID 1')
+
+end_part('interrupts')
+
+@test(5)
+def test_nullread():
+    r.user_test('nullread')
+    r.match('\[LAB 3\] check_us\(\) succeeded!',
+            '\[LAB 3\] check_wx\(\) succeeded!',
+            '\[LAB 3\] check_null\(\) succeeded!',
+            'Welcome to the OpenLSD kernel monitor!',
+            '.PID     1. user fault va 0x0 ip 0x8.....',
+            'Incoming INT frame at 0xfffffe7fffffff..',
+            'INT frame at 0xf.......',
+            ' INT 14: Page Fault \(#PF\)',
+            ' ERR 0x0000000000000004.*',
+            '.PID     1. Freed task with PID 1',
+            no=['I read .. from location 0!'])
+
+@test(5)
+def test_nullwrite():
+    r.user_test('nullwrite')
+    r.match('\[LAB 3\] check_us\(\) succeeded!',
+            '\[LAB 3\] check_wx\(\) succeeded!',
+            '\[LAB 3\] check_null\(\) succeeded!',
+            'Welcome to the OpenLSD kernel monitor!',
+            '.PID     1. user fault va 0x0 ip 0x8.....',
+            'Incoming INT frame at 0xfffffe7fffffff..',
+            'INT frame at 0xf.......',
+            ' INT 14: Page Fault \(#PF\)',
+            ' ERR 0x0000000000000006.*',
+            '.PID     1. Freed task with PID 1')
+
+@test(5)
+def test_nullexec():
+    r.user_test('nullexec')
+    r.match('\[LAB 3\] check_us\(\) succeeded!',
+            '\[LAB 3\] check_wx\(\) succeeded!',
+            '\[LAB 3\] check_null\(\) succeeded!',
+            'Welcome to the OpenLSD kernel monitor!',
+            '.PID     1. user fault va 0x0 ip 0x0',
+            'Incoming INT frame at 0xfffffe7fffffff..',
+            'INT frame at 0xf.......',
+            ' INT 14: Page Fault \(#PF\)',
+            ' ERR 0x0000000000000014.*',
+            '.PID     1. Freed task with PID 1')
+
+@test(5)
+def test_faultwrite():
+    r.user_test('faultwrite')
+    r.match('\[LAB 3\] check_us\(\) succeeded!',
+            '\[LAB 3\] check_wx\(\) succeeded!',
+            '\[LAB 3\] check_null\(\) succeeded!',
+            'Welcome to the OpenLSD kernel monitor!',
+            '.PID     1. user fault va 0x800... ip 0x8.....',
+            'Incoming INT frame at 0xfffffe7fffffff..',
+            'INT frame at 0xf.......',
+            ' INT 14: Page Fault \(#PF\)',
+            ' ERR 0x0000000000000007.*',
+            '.PID     1. Freed task with PID 1')
+
+@test(5)
+def test_faultexec():
+    r.user_test('faultexec')
+    r.match('\[LAB 3\] check_us\(\) succeeded!',
+            '\[LAB 3\] check_wx\(\) succeeded!',
+            '\[LAB 3\] check_null\(\) succeeded!',
+            'Welcome to the OpenLSD kernel monitor!',
+            '.PID     1. user fault va 0x80.... ip 0x80....',
+            'Incoming INT frame at 0xfffffe7fffffff..',
+            'INT frame at 0xf.......',
+            ' INT 14: Page Fault \(#PF\)',
+            ' ERR 0x0000000000000015.*',
+            '.PID     1. Freed task with PID 1')
+
+@test(5)
+def test_kernelread():
+    r.user_test('kernelread')
+    r.match('\[LAB 3\] check_us\(\) succeeded!',
+            '\[LAB 3\] check_wx\(\) succeeded!',
+            '\[LAB 3\] check_null\(\) succeeded!',
+            'Welcome to the OpenLSD kernel monitor!',
+            '.PID     1. user fault va 0xffff800000100000 ip 0x8.....',
+            'Incoming INT frame at 0xfffffe7fffffff..',
+            'INT frame at 0xf.......',
+            ' INT 14: Page Fault \(#PF\)',
+            ' ERR 0x0000000000000005.*',
+            '.PID     1. Freed task with PID 1',
+            no=['I read .. from location 0!'])
+
+@test(5)
+def test_kernelwrite():
+    r.user_test('kernelwrite')
+    r.match('\[LAB 3\] check_us\(\) succeeded!',
+            '\[LAB 3\] check_wx\(\) succeeded!',
+            '\[LAB 3\] check_null\(\) succeeded!',
+            'Welcome to the OpenLSD kernel monitor!',
+            '.PID     1. user fault va 0xffff800000100000 ip 0x8.....',
+            'Incoming INT frame at 0xfffffe7fffffff..',
+            'INT frame at 0xf.......',
+            ' INT 14: Page Fault \(#PF\)',
+            ' ERR 0x0000000000000007.*',
+            '.PID     1. Freed task with PID 1')
+
+@test(5)
+def test_kernelexec():
+    r.user_test('kernelexec')
+    r.match('\[LAB 3\] check_us\(\) succeeded!',
+            '\[LAB 3\] check_wx\(\) succeeded!',
+            '\[LAB 3\] check_null\(\) succeeded!',
+            'Welcome to the OpenLSD kernel monitor!',
+            '.PID     1. user fault va 0xffff800000100000 ip 0xffff800000100000',
+            'Incoming INT frame at 0xfffffe7fffffff..',
+            'INT frame at 0xf.......',
+            ' INT 14: Page Fault \(#PF\)',
+            ' ERR 0x0000000000000015.*',
+            '.PID     1. Freed task with PID 1')
+
+@test(5)
+def test_breakpoint():
+    r.user_test('breakpoint')
+    r.match('\[LAB 3\] check_us\(\) succeeded!',
+            '\[LAB 3\] check_wx\(\) succeeded!',
+            '\[LAB 3\] check_null\(\) succeeded!',
+            'Welcome to the OpenLSD kernel monitor!',
+            'Incoming INT frame at 0xfffffe7fffffff..',
+            no=['INT frame at 0xf.......',
+                ' INT 3: Breakpoint \(#BP\)',
+                ' RIP 0x00000000008..... RFL 0x.{16}',
+                ' CS  0x0023             DS  0x001b             SS  0x001b',
+                '.PID     1. Freed task with PID 1'])
+
+@test(5)
+def test_testbss():
+    r.user_test('testbss')
+    r.match('\[LAB 3\] check_us\(\) succeeded!',
+            '\[LAB 3\] check_wx\(\) succeeded!',
+            '\[LAB 3\] check_null\(\) succeeded!',
+            'Making sure bss works right...',
+            'Yes, good. Now doing a wild write off the end...',
+            '.PID     1. user fault va 0xc..... ip 0x8.....',
+            '.PID     1. Freed task with PID 1')
+
+@test(5)
+def test_hello():
+    r.user_test('hello')
+    r.match('\[LAB 3\] check_us\(\) succeeded!',
+            '\[LAB 3\] check_wx\(\) succeeded!',
+            '\[LAB 3\] check_null\(\) succeeded!',
+            '.PID     0. New task with PID 1',
+            'Hello, world!',
+            'We are number 1!',
+            '.PID     1. Exiting gracefully',
+            '.PID     1. Freed task with PID 1',
+            'Destroyed the only task - nothing more to do!')
+
+end_part('userspace')
+
+@test(5)
+def test_nullhello():
+    r.user_test('nullhello')
+    r.match('.PID     1. Access violation for va 0x0',
+            '.PID     1. Freed task with PID 1',
+            'Destroyed the only task - nothing more to do!')
+
+@test(5)
+def test_overflowhello():
+    r.user_test('overflowhello')
+    r.match('.PID     1. Access violation for va 0x8.....',
+            '.PID     1. Freed task with PID 1',
+            'Destroyed the only task - nothing more to do!',
+            no=['Hello, world!'])
+
+@test(5)
+def test_evilhello():
+    r.user_test('evilhello')
+    r.match('.PID     1. Access violation for va 0xffff800000100000',
+            '.PID     1. Freed task with PID 1',
+            'Destroyed the only task - nothing more to do!')
+
+end_part('user violation')
+
+run_tests()
