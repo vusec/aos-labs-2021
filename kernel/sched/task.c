@@ -20,7 +20,7 @@ size_t nuser_tasks = 0;
 struct task *pid2task(pid_t pid, int check_perm)
 {
 	struct task *task;
-
+	
 	/* PID 0 is the current task. */
 	if (pid == 0) {
 		return cur_task;
@@ -296,3 +296,4 @@ void task_run(struct task *task)
 	/* LAB 3: Your code here. */
 	panic("task_run() not yet implemented");
 }
+

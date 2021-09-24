@@ -88,7 +88,7 @@ void lab3_check_kmem_single_alloc(void)
 			panic("slab for object size %u has inconsistent free "
 				"counts");
 		}
-
+		
 		obj = (struct slab_obj *)p - 1;
 
 		if (obj->info != info) {
@@ -337,3 +337,4 @@ void lab3_check_vas(struct page_table *pml4)
 	lab3_check_wx(pml4);
 	lab3_check_null(pml4);
 }
+

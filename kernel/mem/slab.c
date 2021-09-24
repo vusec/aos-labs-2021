@@ -83,7 +83,7 @@ void slab_setup(struct slab *slab, size_t obj_size)
  * Finally, if the free list becomes empty as a result, it removes the slab
  * from the list of partial slabs and adds it to the list of full slabs
  * instead.
- *
+ * 
  * Returns the allocated object on success. Otherwise this function returns
  * NULL.
  */
@@ -108,7 +108,7 @@ void *slab_alloc(struct slab *slab)
 	}
 
 	/*  Jump over the slab_obj structure and return the address of the
-	 *  first byte in this slab object.
+	 *  first byte in this slab object. 
 	 *
 	 *  Note:
 	 *
@@ -131,7 +131,7 @@ void *slab_alloc(struct slab *slab)
 void slab_free(void *p)
 {
 
-	/*  Get the object metadata starting from the address of the
+	/*  Get the object metadata starting from the address of the 
 	 *  first byte in the actual object.
 	 *
 	 *  Note:
@@ -164,3 +164,4 @@ void slab_free(void *p)
 		slab_free_chunk(slab, info);
 	}
 }
+

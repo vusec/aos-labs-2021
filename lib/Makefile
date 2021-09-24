@@ -12,6 +12,10 @@ LIB_SRCFILES := \
 	lib/stubs.S \
 	lib/syscall.c
 
+# LAB 4 code
+LIB_SRCFILES += \
+	lib/vma.c
+
 LIB_OBJFILES := $(patsubst lib/%.c, $(OBJDIR)/lib/%.o, $(LIB_SRCFILES))
 LIB_OBJFILES := $(patsubst lib/%.S, $(OBJDIR)/lib/%.o, $(LIB_OBJFILES))
 

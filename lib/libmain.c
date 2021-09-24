@@ -20,3 +20,4 @@ void libmain(int argc, char **argv)
 	/* Exit gracefully. */
 	exit();
 }
+

@@ -12,6 +12,8 @@
 #include <kernel/console.h>
 #include <kernel/monitor.h>
 #include <kernel/mem.h>
+#include <kernel/sched.h>
+#include <kernel/vma.h>
 
 #define CMDBUF_SIZE 80  /* enough for one VGA text line */
 
@@ -29,6 +31,7 @@ static struct command commands[] = {
 	{ "buddyinfo", "Display debugging information for the buddy allocator", mon_buddyinfo },
 	{ "pageinfo", "Display page information for a given page index", mon_pageinfo },
 	{ "ptdump", "Display the page tables", mon_ptdump },
+	{ "vmainfo", "Display the VMAs", mon_vmainfo },
 };
 
 #define NCOMMANDS (sizeof(commands)/sizeof(commands[0]))
@@ -139,7 +142,44 @@ int mon_pageinfo(int argc, char **argv, struct int_frame *frame)
 
 int mon_ptdump(int argc, char **argv, struct int_frame *frame)
 {
-	return dump_page_tables(kernel_pml4, PAGE_HUGE);
+	struct task *task;
+	pid_t pid;
+
+	if (argc < 2) {
+		return dump_page_tables(kernel_pml4, PAGE_HUGE);
+	}
+
+	pid = strtol(argv[1], NULL, 10);
+	task = pid2task(pid, 0);
+
+	if (!task) {
+		cprintf("error: no such PID\n");
+		return 0;
+	}
+
+	return dump_page_tables(task->task_pml4, PAGE_HUGE);
+}
+
+int mon_vmainfo(int argc, char **argv, struct int_frame *frame)
+{
+	struct task *task;
+	pid_t pid;
+
+	if (argc < 2) {
+		show_vmas(cur_task);
+		return 0;
+	}
+
+	pid = strtol(argv[1], NULL, 10);
+	task = pid2task(pid, 0);
+
+	if (!task) {
+		cprintf("error: no such PID\n");
+		return 0;
+	}
+
+	show_vmas(task);
+	return 0;
 }
 
 /***** Kernel monitor command interpreter *****/

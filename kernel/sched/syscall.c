@@ -96,3 +96,4 @@ void syscall_handler(uint64_t syscallno, uint64_t a1, uint64_t a2, uint64_t a3,
 	/* Return to the current task, which should be running. */
 	task_run(cur_task);
 }
+

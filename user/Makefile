@@ -16,3 +16,4 @@ $(OBJDIR)/user/%: $(OBJDIR)/user/%.o $(OBJDIR)/lib/entry.o $(USERLIBS:%=$(OBJDIR
 	$(V)$(NM) -n $@ > $@.sym
 	$(V)$(OBJCOPY) --only-keep-debug "$@" "$@.debug"
 	$(V)$(OBJCOPY) --add-gnu-debuglink="$@.debug" --input-target binary --output-target elf64-x86-64 -B i386:x86-64 $@ $@
+

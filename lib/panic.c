@@ -20,3 +20,4 @@ void _panic(const char *file, int line, const char *fmt, ...)
 		asm volatile("int3");
 	}
 }
+

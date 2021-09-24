@@ -2,3 +2,4 @@
 
 struct cpuinfo cpu;
 struct cpuinfo *this_cpu = &cpu;
+

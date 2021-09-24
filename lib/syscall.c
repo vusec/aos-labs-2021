@@ -53,3 +53,29 @@ pid_t getpid(void)
 {
 	 return syscall(SYS_getpid, 0, 0, 0, 0, 0, 0, 0);
 }
+
+int mquery(struct vma_info *info, void *addr)
+{
+	return syscall(SYS_mquery, 0, (uint64_t)info, (uint64_t)addr, 0, 0, 0, 0);
+}
+
+void *mmap(void *addr, size_t len, int prot, int flags, int fd, uintptr_t offset)
+{
+	return (void *)syscall(SYS_mmap, 0, (uint64_t)addr, len, prot, flags, fd, offset);
+}
+
+void munmap(void *addr, size_t len)
+{
+	syscall(SYS_munmap, 0, (uint64_t)addr, len, 0, 0, 0, 0);
+}
+
+int mprotect(void *addr, size_t len, int prot)
+{
+	return syscall(SYS_mprotect, 0, (uint64_t)addr, len, prot, 0, 0, 0);
+}
+
+int madvise(void *addr, size_t len, int advice)
+{
+	return syscall(SYS_madvise, 0, (uint64_t)addr, len, advice, 0, 0, 0);
+}
+

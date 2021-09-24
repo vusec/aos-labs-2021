@@ -23,3 +23,4 @@ void task_run(struct task *task);
 		extern uint8_t TASK_PASTE3(_binary_obj_, x, _start)[];   \
 		task_create(TASK_PASTE3(_binary_obj_, x, _start), type); \
 	} while (0)
+

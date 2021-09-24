@@ -28,3 +28,4 @@ void gdt_init(void)
 	load_gdt(&gdtr, GDT_KCODE, GDT_KDATA);
 	load_task_sel(GDT_TSS0);
 }
+

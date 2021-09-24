@@ -192,3 +192,4 @@ void page_fault_handler(struct int_frame *frame)
 	print_int_frame(frame);
 	task_destroy(cur_task);
 }
+

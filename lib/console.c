@@ -10,3 +10,4 @@ void putchar(int ch)
 	 */
 	puts(&c, 1);
 }
+

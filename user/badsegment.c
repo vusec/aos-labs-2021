@@ -7,3 +7,4 @@ int main(int argc, char **argv)
 		"movw $0x28, %ax\n"
 		"movw %ax, %ds\n");
 }
+

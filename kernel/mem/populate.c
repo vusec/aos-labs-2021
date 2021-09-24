@@ -48,3 +48,4 @@ void populate_region(struct page_table *pml4, void *va, size_t size,
 
 	walk_page_range(pml4, va, (void *)((uintptr_t)va + size), &walker);
 }
+

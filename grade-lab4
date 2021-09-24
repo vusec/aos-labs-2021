@@ -1,0 +1,271 @@
+#!/usr/bin/env python
+
+from gradelib import *
+
+r = Runner(save('jos.out'),
+           stop_breakpoint('readline'))
+
+@test(0, 'running OpenLSD')
+def test_jos():
+    r.run_qemu()
+
+@test(10)
+def test_vma():
+    r.user_test('vma')
+    r.match('0x0000000000200000 - 0x0000000000201000 .rw-. .data',
+            '0x0000000000800000 - 0x0000000000801000 .r-x. .text',
+            '0x0000000000801000 - 0x0000000000802000 .r--. .rodata',
+            '0x0000000000802000 - 0x0000000000803000 .rw-. .data',
+            '0x00007fffffffd000 - 0x00007fffffffe000 .rw-. stack',
+            '.PID     1. Exiting gracefully',
+            '.PID     1. Freed task with PID 1')
+
+@test(10)
+def test_lazyvma():
+    r.user_test('lazyvma')
+    r.match('unmapped',
+            '.PID     1. Exiting gracefully',
+            '.PID     1. Freed task with PID 1',
+            no=['4K page', '2M page'])
+
+end_part('VMAs')
+
+@test(10)
+def test_mmap():
+    r.user_test('mmap')
+    r.match('0x0000000000804000 - 0x0000000001000000 .---. free',
+            '0x0000000001000000 - 0x0000000001001000 .rw-. user',
+            '0x0000000001001000 - 0x00007fffffffd000 .---. free',
+            '.PID     1. Exiting gracefully',
+            '.PID     1. Freed task with PID 1')
+
+@test(10)
+def test_mapnone():
+    r.user_test('mapnone')
+    r.match('0x0000000000804000 - 0x0000000001000000 .---. free',
+            '0x0000000001000000 - 0x0000000001001000 .---. user',
+            '0x0000000001001000 - 0x00007fffffffd000 .---. free',
+            '.PID     1. user fault va 0x1000000 ip 0x800...',
+            '.PID     1. Freed task with PID 1')
+
+@test(10)
+def test_mapfixed():
+    r.user_test('mapfixed')
+    r.match('0x0000000000804000 - 0x0000000001000000 .---. free',
+            '0x0000000001000000 - 0x0000000001001000 .rw-. user',
+            '0x0000000001001000 - 0x00007fffffffd000 .---. free',
+            '.PID     1. Exiting gracefully',
+            '.PID     1. Freed task with PID 1')
+
+@test(10)
+def test_mapnull():
+    r.user_test('mapnull')
+    r.match('0x0000000000000000 - 0x0000000000200000 .---. free',
+            '.PID     1. Exiting gracefully',
+            '.PID     1. Freed task with PID 1')
+
+@test(10)
+def test_mapwrite():
+    r.user_test('mapwrite')
+    r.match('0x0000000000804000 - 0x00007fffffffd000 .---. free',
+            '.PID     1. Exiting gracefully',
+            '.PID     1. Freed task with PID 1')
+
+@test(10)
+def test_mapexec():
+    r.user_test('mapwrite')
+    r.match('0x0000000000804000 - 0x00007fffffffd000 .---. free',
+            '.PID     1. Exiting gracefully',
+            '.PID     1. Freed task with PID 1')
+
+@test(10)
+def test_evilmmap():
+    r.user_test('evilmmap')
+    r.match('.PID     1. Exiting gracefully',
+            '.PID     1. Freed task with PID 1')
+
+end_part('mmap')
+
+@test(10)
+def test_munmap():
+    r.user_test('munmap')
+    r.match('0x0000000000803000 - 0x00007fffffffd000 .---. free',
+            '.PID     1. Exiting gracefully',
+            '.PID     1. Freed task with PID 1')
+
+@test(10)
+def test_unmaptext():
+    r.user_test('unmaptext')
+    r.match('.PID     1. user fault va 0x800... ip 0x800...',
+            '.PID     1. Freed task with PID 1')
+
+@test(10)
+def test_evilmunmap():
+    r.user_test('evilmunmap')
+    r.match('.PID     1. Exiting gracefully',
+            '.PID     1. Freed task with PID 1')
+
+end_part('munmap')
+
+@test(10)
+def test_mprotect():
+    r.user_test('mprotect')
+    r.match('0x0000000000804000 - 0x0000000001000000 .---. free',
+            '0x0000000001000000 - 0x0000000001001000 .r-x. user',
+            '0x0000000001001000 - 0x00007fffffffd000 .---. free',
+            '.PID     1. Exiting gracefully',
+            '.PID     1. Freed task with PID 1',
+            no=['.PID     1. user fault va 0x1000000 ip 0x1000000'])
+
+@test(10)
+def test_protnone():
+    r.user_test('protnone')
+    r.match('0x0000000000804000 - 0x0000000001000000 .---. free',
+            '0x0000000001000000 - 0x0000000001001000 .---. user',
+            '0x0000000001001000 - 0x00007fffffffd000 .---. free',
+            '.PID     1. user fault va 0x1000000 ip 0x800...',
+            '.PID     1. Freed task with PID 1')
+
+@test(10)
+def test_persistnone():
+    r.user_test('persistnone')
+    r.match('.PID     1. Exiting gracefully',
+            '.PID     1. Freed task with PID 1')
+
+@test(10)
+def test_protwrite():
+    r.user_test('protwrite')
+    r.match('0x0000000000804000 - 0x0000000001000000 .---. free',
+            '0x0000000001000000 - 0x0000000001001000 .rw-. user',
+            '0x0000000001001000 - 0x00007fffffffd000 .---. free',
+            '.PID     1. Exiting gracefully',
+            '.PID     1. Freed task with PID 1')
+
+@test(10)
+def test_protexec():
+    r.user_test('protexec')
+    r.match('0x0000000000804000 - 0x0000000001000000 .---. free',
+            '0x0000000001000000 - 0x0000000001001000 .rw-. user',
+            '0x0000000001001000 - 0x00007fffffffd000 .---. free',
+            '.PID     1. Exiting gracefully',
+            '.PID     1. Freed task with PID 1')
+
+@test(10)
+def test_evilmprotect():
+    r.user_test('evilmprotect')
+    r.match('.PID     1. Exiting gracefully',
+            '.PID     1. Freed task with PID 1')
+
+end_part('mprotect')
+
+@test(10)
+def test_dontneed():
+    r.user_test('dontneed')
+    r.match('unmapped',
+            '0x0000000000804000 - 0x0000000001000000 .---. free',
+            '0x0000000001000000 - 0x0000000001001000 .rw-. user',
+            '0x0000000001001000 - 0x00007fffffffd000 .---. free',
+            '.PID     1. Exiting gracefully',
+            '.PID     1. Freed task with PID 1',
+            no=['4K page', '2M page'])
+
+@test(10)
+def test_mustneed():
+    r.user_test('mustneed')
+    r.match('4K page',
+            '0x0000000000804000 - 0x0000000001000000 .---. free',
+            '0x0000000001000000 - 0x0000000001001000 .rw-. user',
+            '0x0000000001001000 - 0x00007fffffffd000 .---. free',
+            '.PID     1. Exiting gracefully',
+            '.PID     1. Freed task with PID 1',
+            no=['unmapped', '2M page'])
+
+@test(10)
+def test_willneed():
+    r.user_test('willneed')
+    r.match('4K page',
+            '0x0000000000804000 - 0x0000000001000000 .---. free',
+            '0x0000000001000000 - 0x0000000001001000 .rw-. user',
+            '0x0000000001001000 - 0x00007fffffffd000 .---. free',
+            '.PID     1. Exiting gracefully',
+            '.PID     1. Freed task with PID 1',
+            no=['unmapped', '2M page'])
+
+@test(10)
+def test_evilmadvise():
+    r.user_test('evilmadvise')
+    r.match('.PID     1. Exiting gracefully',
+            '.PID     1. Freed task with PID 1')
+
+end_part('madvice')
+
+@test(10)
+def test_mapleft():
+    r.user_test('mapleft')
+    r.match('0x0000000000803000 - 0x0000000001000000 .---. free',
+            '0x0000000001000000 - 0x0000000001002000 .r--. user',
+            '0x0000000001002000 - 0x00007fffffffd000 .---. free',
+            '.PID     1. Exiting gracefully',
+            '.PID     1. Freed task with PID 1')
+
+@test(10)
+def test_mapright():
+    r.user_test('mapright')
+    r.match('0x0000000000803000 - 0x0000000001000000 .---. free',
+            '0x0000000001000000 - 0x0000000001002000 .r--. user',
+            '0x0000000001002000 - 0x00007fffffffd000 .---. free',
+            '.PID     1. Exiting gracefully',
+            '.PID     1. Freed task with PID 1')
+
+@test(10)
+def test_mergevma():
+    r.user_test('mergevma')
+    r.match('0x0000000001000000 - 0x0000000001003000 .r--. user',
+            '.PID     1. Exiting gracefully',
+            '.PID     1. Freed task with PID 1')
+
+@test(10)
+def test_unmapleft():
+    r.user_test('unmapleft')
+    r.match('0x0000000000803000 - 0x0000000001001000 .---. free',
+            '0x0000000001001000 - 0x0000000001002000 .r--. user',
+            '0x0000000001002000 - 0x00007fffffffd000 .---. free',
+            '.PID     1. Exiting gracefully',
+            '.PID     1. Freed task with PID 1')
+
+@test(10)
+def test_unmapright():
+    r.user_test('unmapright')
+    r.match('0x0000000000803000 - 0x0000000001000000 .---. free',
+            '0x0000000001000000 - 0x0000000001001000 .r--. user',
+            '0x0000000001001000 - 0x00007fffffffd000 .---. free',
+            '.PID     1. Exiting gracefully',
+            '.PID     1. Freed task with PID 1')
+
+@test(10)
+def test_splitvma():
+    r.user_test('splitvma')
+    r.match('0x0000000001000000 - 0x0000000001001000 .r--. user',
+            '0x0000000001001000 - 0x0000000001002000 .---. free',
+            '0x0000000001002000 - 0x0000000001003000 .r--. user',
+            '.PID     1. Exiting gracefully',
+            '.PID     1. Freed task with PID 1')
+
+end_part('VMA split/merge')
+
+""" BONUS
+@test(10)
+def test_thp():
+    r.user_test('thp')
+    r.match('2M page',
+            '0x0000000000804000 - 0x0000000001000000 .---. free',
+            '0x0000000001000000 - 0x0000000001200000 .rw-. user',
+            '0x0000000001200000 - 0x00007fffffffd000 .---. free',
+            '.PID     1. Exiting gracefully',
+            '.PID     1. Freed task with PID 1')
+
+end_part('transparent hugepages')
+"""
+
+run_tests()
+

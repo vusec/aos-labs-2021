@@ -342,7 +342,7 @@ run-%-nox-gdb: prep-% pre-qemu
 	@echo "*** Now run 'make gdb'." 1>&2
 	@echo "***"
 	@$(QEMU) -nographic $(QEMUOPTS) -S
-
+	
 run-%-gdb: prep-% pre-qemu
 	@sed "s/localhost:1234/localhost:$(GDBPORT)/" < .gdbrc.tmpl > .gdbrc
 	@echo "add-symbol-file obj/user/$*" >> .gdbrc
