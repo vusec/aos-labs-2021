@@ -79,3 +79,23 @@ int madvise(void *addr, size_t len, int advice)
 	return syscall(SYS_madvise, 0, (uint64_t)addr, len, advice, 0, 0, 0);
 }
 
+void sched_yield(void)
+{
+	syscall(SYS_yield, 0, 0, 0, 0, 0, 0, 0);
+}
+
+pid_t wait(int *rstatus)
+{
+	return syscall(SYS_wait, 0, (uint64_t)rstatus, 0, 0, 0, 0, 0);
+}
+
+pid_t waitpid(pid_t pid, int *rstatus, int opts)
+{
+	return syscall(SYS_waitpid, 0, (uint64_t)pid, (uint64_t)rstatus, opts, 0, 0, 0);
+}
+
+pid_t fork(void)
+{
+	return syscall(SYS_fork, 0, 0, 0, 0, 0, 0, 0);
+}
+

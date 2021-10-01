@@ -50,6 +50,8 @@ static int sys_kill(pid_t pid)
 {
 	struct task *task;
 
+	/* LAB 5: your code here. */
+
 	task = pid2task(pid, 1);
 
 	if (!task) {

@@ -1,6 +1,8 @@
+#include <kernel/acpi.h>
 #include <kernel/console.h>
 #include <kernel/mem.h>
 #include <kernel/monitor.h>
+#include <kernel/pic.h>
 #include <kernel/sched.h>
 #include <kernel/tests.h>
 
@@ -11,6 +13,7 @@
 void kmain(struct boot_info *boot_info)
 {
 	extern char edata[], end[];
+	struct rsdp *rsdp;
 
 	/* Before doing anything else, complete the ELF loading process.
 	 * Clear the uninitialized global data (BSS) section of our program.
@@ -34,17 +37,20 @@ void kmain(struct boot_info *boot_info)
 	/* Set up the slab allocator. */
 	kmem_init();
 
+	/* Set up the interrupt controller and timers */
+	pic_init();
+	rsdp = rsdp_find();
+	madt_init(rsdp);
+	lapic_init();
+	hpet_init(rsdp);
+
 	/* Set up the tasks. */
 	task_init();
+	sched_init();
 
 #if defined(TEST)
 	TASK_CREATE(TEST, TASK_TYPE_USER);
-
-	/* Run task with PID 1 */
-	struct task *task = pid2task(1, 0);
-	assert(task);
-	lab3_check_vas(task->task_pml4);
-	task_run(task);
+	sched_yield();
 #else
 	lab3_check_kmem();
 

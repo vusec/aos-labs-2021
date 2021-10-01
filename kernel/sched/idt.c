@@ -148,7 +148,7 @@ void int_handler(struct int_frame *frame)
 	 */
 	assert(!(read_rflags() & FLAGS_IF));
 
-	cprintf("Incoming INT frame at %p\n", frame);
+	/* cprintf("Incoming INT frame at %p\n", frame); */
 
 	if ((frame->cs & 3) == 3) {
 		/* Interrupt from user mode. */
@@ -192,4 +192,3 @@ void page_fault_handler(struct int_frame *frame)
 	print_int_frame(frame);
 	task_destroy(cur_task);
 }
-

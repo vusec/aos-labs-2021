@@ -57,5 +57,15 @@ struct task {
 	/* The VMAs */
 	struct rb_tree task_rb;
 	struct list task_mmap;
+
+	/* The children */
+	struct list task_children;
+	struct list task_child;
+
+	/* The zombies */
+	struct list task_zombies;
+
+	/* The anchor node (for zombies or the run queue) */
+	struct list task_node;
 };
 

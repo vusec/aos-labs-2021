@@ -20,7 +20,7 @@ size_t nuser_tasks = 0;
 struct task *pid2task(pid_t pid, int check_perm)
 {
 	struct task *task;
-	
+
 	/* PID 0 is the current task. */
 	if (pid == 0) {
 		return cur_task;
@@ -204,7 +204,7 @@ static void task_load_elf(struct task *task, uint8_t *binary)
  */
 void task_create(uint8_t *binary, enum task_type type)
 {
-	/* LAB 3: your code here. */
+	/* LAB 5: your code here. */
 }
 
 /* Free the task and all of the memory that is used by it.
@@ -213,6 +213,7 @@ void task_free(struct task *task)
 {
 	struct task *waiting;
 
+	/* LAB 5: your code here. */
 	/* If we are freeing the current task, switch to the kernel_pml4
 	 * before freeing the page tables, just in case the page gets re-used.
 	 */
@@ -241,6 +242,7 @@ void task_destroy(struct task *task)
 {
 	task_free(task);
 
+	/* LAB 5: your code here. */
 	cprintf("Destroyed the only task - nothing more to do!\n");
 
 	while (1) {
@@ -296,4 +298,3 @@ void task_run(struct task *task)
 	/* LAB 3: Your code here. */
 	panic("task_run() not yet implemented");
 }
-
