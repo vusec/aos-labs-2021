@@ -1,4 +1,5 @@
 #include <types.h>
+#include <cpu.h>
 #include <error.h>
 
 #include <kernel/mem.h>

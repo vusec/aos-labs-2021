@@ -5,6 +5,7 @@
 #include <x86-64/gdt.h>
 #include <x86-64/idt.h>
 
+#include <kernel/acpi.h>
 #include <kernel/sched/idt.h>
 #include <kernel/monitor.h>
 #include <kernel/sched/syscall.h>
@@ -111,6 +112,11 @@ void idt_init(void)
 {
 	/* LAB 3: your code here. */
 	load_idt(&idtr);
+}
+
+void idt_init_mp(void)
+{
+	/* LAB 6: your code here. */
 }
 
 void int_dispatch(struct int_frame *frame)

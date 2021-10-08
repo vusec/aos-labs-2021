@@ -1,10 +1,12 @@
 #include <error.h>
 #include <string.h>
 #include <assert.h>
+#include <cpu.h>
 
 #include <x86-64/asm.h>
 #include <x86-64/gdt.h>
 
+#include <kernel/acpi.h>
 #include <kernel/console.h>
 #include <kernel/mem.h>
 #include <kernel/sched.h>
@@ -14,6 +16,11 @@ extern void syscall64(void);
 void syscall_init(void)
 {
 	/* LAB 3: your code here. */
+}
+
+void syscall_init_mp(void)
+{
+	/* LAB 6: your code here. */
 }
 
 /*
@@ -62,6 +69,12 @@ static int sys_kill(pid_t pid)
 	task_destroy(task);
 
 	return 0;
+}
+
+static int sys_getcpuid(void)
+{
+	/* LAB 6: your code here. */
+        return 0;
 }
 
 /* Dispatches to the correct kernel function, passing the arguments. */

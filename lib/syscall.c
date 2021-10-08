@@ -99,3 +99,8 @@ pid_t fork(void)
 	return syscall(SYS_fork, 0, 0, 0, 0, 0, 0, 0);
 }
 
+unsigned int getcpuid(void)
+{
+	return syscall(SYS_getcpuid, 0, 0, 0, 0, 0, 0, 0);
+}
+

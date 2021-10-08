@@ -1,12 +1,11 @@
 #include <types.h>
+#include <cpu.h>
 #include <paging.h>
 
 #include <x86-64/asm.h>
 
+#include <kernel/acpi.h>
 #include <kernel/mem.h>
-
-extern size_t nslabs;
-extern struct slab slabs[];
 
 void lab3_check_kmem_init(void)
 {

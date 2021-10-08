@@ -63,6 +63,7 @@ void puts(const char *string, size_t len);
 int getc(void);
 pid_t getpid(void);
 int kill(pid_t);
+unsigned getcpuid(void);
 
 int mquery(struct vma_info *info, void *addr);
 void *mmap(void *addr, size_t len, int prot, int flags, int fd,

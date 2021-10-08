@@ -9,6 +9,9 @@
 
 #include <x86-64/asm.h>
 
+#include <cpu.h>
+
+#include <kernel/acpi.h>
 #include <kernel/console.h>
 #include <kernel/monitor.h>
 #include <kernel/mem.h>

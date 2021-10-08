@@ -35,8 +35,8 @@
 
 /* Kernel stack. */
 #define KSTACK_TOP PIDMAP_BASE
-#define KSTACK_SIZE (8 * PAGE_SIZE)
-#define KSTACK_GAP (8 * PAGE_SIZE)
+#define KSTACK_SIZE (31 * PAGE_SIZE)
+#define KSTACK_GAP (PAGE_SIZE)
 
 /* User address space limit. */
 #ifdef __ASSEMBLER__

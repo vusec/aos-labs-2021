@@ -11,27 +11,36 @@
  */
 int insert_vma(struct task *task, struct vma *vma)
 {
-	struct rb_node *rb_parent = NULL;
-	struct list *node;
-	struct vma *found, *parent;
+	struct rb_node *node, *parent = NULL;
+        struct vma *vma_tmp = NULL;
 	int dir;
 
-	found = find_vma(&rb_parent, &dir, &task->task_rb, vma->vm_end);
 
-	if (found && found->vm_base < vma->vm_end) {
-		return -1;
+	node = task->task_rb.root;
+
+	while (node) {
+		vma_tmp = container_of(node, struct vma, vm_rb);
+		parent = node;
+		dir = (vma->vm_base >= vma_tmp->vm_end);
+
+		if (!dir) {
+		    /* If dir == 0 check if we don't overlap vma_tmp */
+                    if (vma->vm_end > vma_tmp->vm_base){
+                        return -1;
+                    }
+		}
+
+		node = node->child[dir];
 	}
 
-	parent = rb_parent ? container_of(rb_parent, struct vma, vm_rb) : NULL;
-	node = &parent->vm_mmap;
+        if (!parent){
+            task->task_rb.root = &vma->vm_rb;
+        } else {
+            parent->child[dir] = &vma->vm_rb;
+            vma->vm_rb.parent = parent;
+        }
 
-	if (!parent) {
-		task->task_rb.root = &vma->vm_rb;
-	} else {
-		rb_parent->child[dir] = &vma->vm_rb;
-		vma->vm_rb.parent = rb_parent;
-	}
-
+        /* Balance the RED-BLACK tree after VMA insertion */
 	if (rb_insert(&task->task_rb, &vma->vm_rb) < 0) {
 		return -1;
 	}
@@ -39,10 +48,11 @@ int insert_vma(struct task *task, struct vma *vma)
 	if (!parent) {
 		list_insert_after(&task->task_mmap, &vma->vm_mmap);
 	} else {
+                assert(vma_tmp);
 		if (dir) {
-			list_insert_after(node, &vma->vm_mmap);
-		} else {
-			list_insert_before(node, &vma->vm_mmap);
+			list_insert_after(&vma_tmp->vm_mmap, &vma->vm_mmap);
+		} else { 
+			list_insert_before(&vma_tmp->vm_mmap, &vma->vm_mmap);
 		}
 	}
 
@@ -62,7 +72,7 @@ struct vma *add_executable_vma(struct task *task, char *name, void *addr,
 	size_t size, int flags, void *src, size_t len)
 {
 	/* LAB 4: your code here. */
-	return NULL;
+        return NULL;
 }
 
 /* A simplified wrapper to add anonymous VMAs, i.e. VMAs not backed by an
@@ -90,3 +100,4 @@ struct vma *add_vma(struct task *task, char *name, void *addr, size_t size,
 
 	return NULL;
 }
+

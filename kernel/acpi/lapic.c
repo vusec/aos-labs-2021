@@ -1,8 +1,11 @@
 #include <types.h>
+#include <cmos.h>
+#include <cpu.h>
 #include <lapic.h>
 
 #include <x86-64/idt.h>
 
+#include <kernel/acpi.h>
 #include <kernel/mem.h>
 #include <kernel/sched.h>
 
@@ -116,5 +119,38 @@ void lapic_ipi(int vector)
 	/* Wait for the delivery. */
 	while (lapic_read(LAPIC_ICR_LO) & LAPIC_DELIVERY)
 		;
+}
+
+/* Starts up the core with APIC ID by writing the physical address to the boot
+ * code to the Warm Reset Vector, sending a level-triggered INIT interrupt to
+ * reset the CPU core and then two startup IPIs to actually start up the core.
+ * The CPU core will then start executing from the boot code in 16-bit real
+ * mode.
+ */
+void lapic_startup(uint8_t apic_id, uint32_t addr)
+{
+	uint16_t *wrv;
+	size_t i;
+
+	/* Write the physical address of the boot code to the Warm Reset
+	 * Vector.
+	 */
+	outb(CMOS_ADDR, 0xf);
+	outb(CMOS_DATA + 1, 0x8a);
+
+	wrv = (uint16_t *)KADDR((0x40 << 4 | 0x67));
+	wrv[0] = 0;
+	wrv[1] = addr >> 4;
+
+	/* Send a level-triggered INIT interrupt to reset the other CPU. */
+	lapic_write(LAPIC_ICR_HI, apic_id << 24);
+	lapic_write(LAPIC_ICR_LO, LAPIC_INIT | LAPIC_LEVEL | LAPIC_ASSERT);
+	lapic_write(LAPIC_ICR_LO, LAPIC_INIT | LAPIC_LEVEL);
+
+	/* Send two startup IPIs. */
+	for (i = 0; i < 2; ++i) {
+		lapic_write(LAPIC_ICR_HI, apic_id << 24);
+		lapic_write(LAPIC_ICR_LO, LAPIC_STARTUP  | (addr >> 12));
+	}
 }
 

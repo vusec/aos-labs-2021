@@ -4,8 +4,18 @@
  */
 
 #include <types.h>
+#include <cpu.h>
+#include <spinlock.h>
 #include <stdio.h>
 #include <stdarg.h>
+
+#ifndef USE_BIG_KERNEL_LOCK
+struct spinlock console_lock = {
+#ifdef DEBUG_SPINLOCK
+	.name = "console_lock",
+#endif
+};
+#endif
 
 static void putch(int ch, int *cnt)
 {
