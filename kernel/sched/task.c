@@ -4,6 +4,7 @@
 #include <task.h>
 #include <cpu.h>
 
+#include <kernel/acpi.h>
 #include <kernel/monitor.h>
 #include <kernel/mem.h>
 #include <kernel/sched.h>

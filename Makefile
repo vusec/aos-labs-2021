@@ -184,12 +184,20 @@ include lib/Makefile
 
 CPUS ?= 1
 
-QEMUOPTS = -drive format=raw,file=$(OBJDIR)/kernel/kernel.img -serial mon:stdio -gdb tcp::$(GDBPORT)
+QEMUOPTS += -machine q35
+QEMUOPTS += -device ich9-ahci,id=ahci
+QEMUOPTS += -drive id=disk0,format=raw,file=$(OBJDIR)/kernel/kernel.img,if=none
+QEMUOPTS += -device ide-drive,drive=disk0,bus=ahci.0
+QEMUOPTS += -drive id=disk1,format=raw,file=$(OBJDIR)/kernel/swap.img,if=none
+QEMUOPTS += -device ide-drive,drive=disk1,bus=ahci.1
+QEMUOPTS += -serial mon:stdio -gdb tcp::$(GDBPORT)
 QEMUOPTS += $(shell if $(QEMU) -nographic -help | grep -q '^-D '; then echo '-D qemu.log'; fi)
 QEMUOPTS += -no-reboot -D /dev/stdout
-IMAGES = $(OBJDIR)/kernel/kernel.img
 QEMUOPTS += -smp $(CPUS)
 QEMUOPTS += $(QEMUEXTRA)
+
+IMAGES += $(OBJDIR)/kernel/kernel.img
+IMAGES += $(OBJDIR)/kernel/swap.img
 
 .gdbrc: .gdbrc.tmpl
 	sed "s/localhost:1234/localhost:$(GDBPORT)/" < $^ > $@
@@ -342,7 +350,7 @@ run-%-nox-gdb: prep-% pre-qemu
 	@echo "*** Now run 'make gdb'." 1>&2
 	@echo "***"
 	@$(QEMU) -nographic $(QEMUOPTS) -S
-	
+
 run-%-gdb: prep-% pre-qemu
 	@sed "s/localhost:1234/localhost:$(GDBPORT)/" < .gdbrc.tmpl > .gdbrc
 	@echo "add-symbol-file obj/user/$*" >> .gdbrc

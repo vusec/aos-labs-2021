@@ -151,6 +151,18 @@ KERNEL_SRCFILES += \
 KERNEL_BINFILES += \
 	user/mcorefork
 
+# LAB 7 code
+KERNEL_SRCFILES += \
+	kernel/acpi/mcfg.c \
+	kernel/dev/ahci.c \
+	kernel/dev/ata.c \
+	kernel/dev/disk.c \
+	kernel/dev/pci.c
+
+# LAB 7 binaries
+KERNEL_BINFILES += \
+	user/mempress
+
 # Only build files if they exist.
 KERNEL_SRCFILES := $(wildcard $(KERNEL_SRCFILES))
 
@@ -196,10 +208,17 @@ $(OBJDIR)/kernel/kernel.img: $(OBJDIR)/kernel/kernel $(OBJDIR)/boot/boot
 	$(V)truncate -s %512 $(OBJDIR)/boot/boot
 	$(V)dd if=$(OBJDIR)/boot/boot of=$(OBJDIR)/kernel/kernel.img~ 2>/dev/null
 	$(V)dd if=$(OBJDIR)/kernel/kernel >>$(OBJDIR)/kernel/kernel.img~ 2>/dev/null
-	$(V)truncate -s 5120000 $(OBJDIR)/kernel/kernel.img~
+	$(V)truncate -s 5M $(OBJDIR)/kernel/kernel.img~
 	$(V)mv $(OBJDIR)/kernel/kernel.img~ $(OBJDIR)/kernel/kernel.img
 
-all: $(OBJDIR)/kernel/kernel.img
+# Build a swap image.
+$(OBJDIR)/kernel/swap.img:
+	@echo + mk $@
+	$(V)echo -n "SWAP" > $(OBJDIR)/kernel/swap.img~
+	$(V)truncate -s 128M $(OBJDIR)/kernel/swap.img~
+	$(V)mv $(OBJDIR)/kernel/swap.img~ $(OBJDIR)/kernel/swap.img
+
+all: $(OBJDIR)/kernel/kernel.img $(OBJDIR)/kernel/swap.img
 
 grub: $(OBJDIR)/jos-grub
 

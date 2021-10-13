@@ -2,6 +2,7 @@
 
 #include <kernel/acpi.h>
 #include <kernel/console.h>
+#include <kernel/dev/pci.h>
 #include <kernel/mem.h>
 #include <kernel/monitor.h>
 #include <kernel/mp.h>
@@ -46,6 +47,7 @@ void kmain(struct boot_info *boot_info)
 	madt_init(rsdp);
 	lapic_init();
 	hpet_init(rsdp);
+	pci_init(rsdp);
 
 	/* Set up the tasks. */
 	task_init();

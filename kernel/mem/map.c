@@ -60,7 +60,6 @@ void boot_map_region(struct page_table *pml4, void *va, size_t size,
 	struct page_walker walker = {
 		.pte_callback = boot_map_pte,
 		.pde_callback = boot_map_pde,
-		/* LAB 2: your code here. */
 		.udata = &info,
 	};
 
@@ -107,3 +106,4 @@ void boot_map_kernel(struct page_table *pml4, struct elf *elf_hdr)
 
 	/* LAB 2: your code here. */
 }
+

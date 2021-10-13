@@ -111,3 +111,17 @@ enum {
 	MADT_LAPIC64,
 };
 
+struct mcfg_entry {
+	uint64_t base_addr;
+	uint16_t segment_group;
+	uint8_t  bus_start;
+	uint8_t  bus_end;
+	uint32_t _0;
+} __attribute__ ((packed));
+
+struct mcfg {
+	struct acpi_hdr hdr;
+	uint64_t _0;
+	struct mcfg_entry entries[1];
+} __attribute__ ((packed));
+
